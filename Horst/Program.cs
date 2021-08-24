@@ -1,4 +1,5 @@
 ﻿using System;
+using Horst.Nodes;
 using Horst.Parser;
 
 namespace Horst
@@ -7,11 +8,18 @@ namespace Horst
     {
         static void Main(string[] args)
         {
-            InputStream inputStream = new InputStream("if 1+ 3 \"Hey \" i");
-            TokenStream tokenStream = new TokenStream(inputStream);
-            while (!tokenStream.EOF())
+            InputStream inputStream = new InputStream("x * 3");
+            try
             {
-                Console.WriteLine(tokenStream.Next());
+                TokenStream tokenStream = new TokenStream(inputStream);
+                Parser.Parser parser = new Parser.Parser(tokenStream);
+                SequenceNode res = parser.Parse();
+            }
+            catch (Exception e)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(e.Message);
+                Console.ResetColor();
             }
         }
     }

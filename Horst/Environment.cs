@@ -41,7 +41,7 @@ namespace Horst
 
         public dynamic Get(string name)
         {
-            if (vars.ContainsValue(name))
+            if (vars[name] != null)
             {
                 return vars[name];
             }
@@ -49,16 +49,25 @@ namespace Horst
             throw new Exception("Undefined variable " + name);
         }
 
-        public Environment Set(string name, dynamic value)
+        public dynamic Set(string name, dynamic value)
         {
             Environment scope = Lookup(name);
-
+            
+            // Maybe remove && parent != null
             if (scope == null && parent != null)
             {
                 throw new Exception("Undefined variable " + name);
             }
 
-            return scope == null ? this : scope;
+            Environment env = scope == null ? this : scope;
+            env.privateVars[name] = value;
+            return env.vars[name] = value;
+        }
+
+        public void Define(string name, dynamic value)
+        {
+            this.privateVars[name] = value;
+            this.vars[name] = value;
         }
         
     }

@@ -147,5 +147,10 @@ namespace Horst.Parser
         {
             return Peek() == null;
         }
+
+        public void Error(string msg)
+        {
+            input.Error(msg);
+        }
     }
 }
