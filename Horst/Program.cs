@@ -14,6 +14,7 @@ namespace Horst
                 TokenStream tokenStream = new TokenStream(inputStream);
                 Parser.Parser parser = new Parser.Parser(tokenStream);
                 SequenceNode res = parser.Parse();
+                Console.ReadKey();
             }
             catch (Exception e)
             {

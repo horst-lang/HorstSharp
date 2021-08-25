@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Horst.Nodes;
 using Horst.Tokens;
-
-
-//TODO Error: '(1, 4): Expecting punctuation: ";"' when doing 'x * 3' 
 
 namespace Horst.Parser
 {

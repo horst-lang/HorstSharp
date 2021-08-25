@@ -29,6 +29,10 @@ namespace Horst.Parser
         private bool IsOperatorChar(char ch)
         {
             return "+-*/%=&|<>!".Contains(ch);
+        }     
+        private bool IsPunctuation(char ch)
+        {
+            return ",;(){}[]".Contains(ch);
         }
 
         private string ReadWhile(Func<char, bool> function)
@@ -125,7 +129,7 @@ namespace Horst.Parser
             if (ch == '"') return ReadString();
             if (char.IsDigit(ch)) return ReadNumber();
             if (IsIdentifier(ch)) return ReadIdentifier();
-            if (char.IsPunctuation(ch)) return new PunctuationToken(input.Next());
+            if (IsPunctuation(ch)) return new PunctuationToken(input.Next());
             if (IsOperatorChar(ch)) return new OperatorToken(ReadWhile(IsOperatorChar));
             input.Error($"Can't handle Character: {ch}");
             return null;
