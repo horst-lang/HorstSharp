@@ -8,7 +8,7 @@ namespace Horst.Parser
     {
         private Token current;
         private InputStream input;
-        private static readonly string[] keywords = new[] { "if", "then", "else", "function", "true", "false" };
+        private static readonly string[] keywords = new[] { "if", "then", "else", "function", "fn", "true", "false" };
 
         // Constructor
         public TokenStream(InputStream input)

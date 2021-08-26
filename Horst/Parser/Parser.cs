@@ -7,7 +7,7 @@ namespace Horst.Parser
 {
     public class Parser
     {
-        public TokenStream input;
+        private TokenStream input;
         private static BooleanNode FALSE = new BooleanNode(false);
         private Dictionary<string, int> PRECEDENCE;
         
@@ -177,7 +177,7 @@ namespace Horst.Parser
                     return ParseBool();
                 }
 
-                if (IsKeyword("function"))
+                if (IsKeyword("function") || IsKeyword("fn"))
                 {
                     input.Next();
                     return ParseFunction();
@@ -236,7 +236,7 @@ namespace Horst.Parser
         private Node MaybeCall(Func<Node> _expr)
         {
             Node expr = _expr();
-            return IsPunc('(') ? ParseCall(expr as FunctionNode) : expr;
+            return IsPunc('(') ? ParseCall(expr as IdentifierNode) : expr;
         }
         
         private Node MaybeBinary(Node left, int myPrec)
@@ -259,9 +259,9 @@ namespace Horst.Parser
             return left;
         }
 
-        private FunctionCallNode ParseCall(FunctionNode func)
+        private FunctionCallNode ParseCall(IdentifierNode func)
         {
-            return new FunctionCallNode(func, (Node[]) Delimited('(', ')', ',', ParseExpression));
+            return new FunctionCallNode(func, Array.ConvertAll(Delimited('(', ')', ',', ParseExpression), o => (Node)o));
         }
 
         private SequenceNode ParseToplevel()

@@ -1,4 +1,7 @@
 ﻿using System;
+using System.IO;
+using System.Net;
+using System.Text;
 using Horst.Nodes;
 using Horst.Parser;
 
@@ -8,20 +11,14 @@ namespace Horst
     {
         static void Main(string[] args)
         {
-            InputStream inputStream = new InputStream("x * 3");
-            try
-            {
-                TokenStream tokenStream = new TokenStream(inputStream);
-                Parser.Parser parser = new Parser.Parser(tokenStream);
-                SequenceNode res = parser.Parse();
-                Console.ReadKey();
-            }
-            catch (Exception e)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(e.Message);
-                Console.ResetColor();
-            }
+            string code =
+                
+                @"print(httpPost(""https://postman-echo.com/post"", ""This is a test that posts this string to a Web server.""))";
+            
+            Parser.Parser parser = new Parser.Parser(new TokenStream(new InputStream(code)));
+            SequenceNode ast = parser.Parse();
+            Environment globalEnv = new StandardLibrary().Environment; 
+            Interpreter.Evaluate(ast, globalEnv);
         }
     }
 }

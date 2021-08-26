@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Horst.Parser;
-using Horst.Tokens;
 
 namespace Horst
 {
@@ -41,12 +39,12 @@ namespace Horst
 
         public dynamic Get(string name)
         {
-            if (vars[name] != null)
+            if (vars.ContainsKey(name))
             {
                 return vars[name];
             }
 
-            throw new Exception("Undefined variable " + name);
+            throw new Exception($"Undefined variable '{name}'");
         }
 
         public dynamic Set(string name, dynamic value)
@@ -54,9 +52,10 @@ namespace Horst
             Environment scope = Lookup(name);
             
             // Maybe remove && parent != null
-            if (scope == null && parent != null)
+            if (scope == null)
             {
-                throw new Exception("Undefined variable " + name);
+                Define(name, value);
+                //throw new Exception("Undefined variable " + name);
             }
 
             Environment env = scope == null ? this : scope;
@@ -69,6 +68,5 @@ namespace Horst
             this.privateVars[name] = value;
             this.vars[name] = value;
         }
-        
     }
 }

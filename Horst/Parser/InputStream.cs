@@ -16,18 +16,25 @@ namespace Horst.Parser
 
         public char Next()
         {
-            char character = input[pos++];
-            if (character == '\n')
+            var i = pos++;
+            if (i >= 0 && input.Length > i)
             {
-                line++;
-                column = 1;
-            }
-            else
-            {
-                column++;
+                char character = input[i];
+                if (character == '\n')
+                {
+                    line++;
+                    column = 1;
+                }
+                else
+                {
+                    column++;
+                }
+
+                return character;
             }
 
-            return character;
+            Error("File can't be empty");
+            throw new Exception();
         }
 
         public char Peek()
