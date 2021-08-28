@@ -13,4 +13,6 @@ Horst is a interpreted programming language for a school project with the goal t
 4. Done :) You can now use horst! Check out the horst docs for more info.
 
 
+Horsted with ♥ on GitHub
+
 *1: WARNING: This solution may be destructive to your PATH, and the stability of your system. As a side effect, it will merge your user and system PATH, and truncate PATH to 1024 characters. The effect of this command is irreversible. Make a backup of PATH first.
