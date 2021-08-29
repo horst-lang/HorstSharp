@@ -7,43 +7,43 @@ namespace Horst.Parser
 {
     public class Parser
     {
-        private TokenStream input;
-        private static BooleanNode FALSE = new BooleanNode(false);
-        private Dictionary<string, int> PRECEDENCE;
+        private readonly TokenStream _input;
+        private static readonly BooleanNode False = new BooleanNode(false);
+        private readonly Dictionary<string, int> _precedence;
         
         
         public Parser(TokenStream input)
         {
-            this.input = input;
-            PRECEDENCE = new Dictionary<string, int>();
+            this._input = input;
+            _precedence = new Dictionary<string, int>();
             SetPrecedence();
         }
 
         private void SetPrecedence()
         {
-            PRECEDENCE["="] = 1;
-            PRECEDENCE["||"] = 2;
-            PRECEDENCE["&&"] = 3; 
-            PRECEDENCE["<"] = 7; PRECEDENCE[">"] = 7; PRECEDENCE["<="] = 7; PRECEDENCE[">="] = 7; PRECEDENCE["=="] = 7; PRECEDENCE["!="] = 7;
-            PRECEDENCE["+"] = 10; PRECEDENCE["-"] = 10;
-            PRECEDENCE["*"] = 20; PRECEDENCE["/"] = 20; PRECEDENCE["%"] = 20;
+            _precedence["="] = 1;
+            _precedence["||"] = 2;
+            _precedence["&&"] = 3; 
+            _precedence["<"] = 7; _precedence[">"] = 7; _precedence["<="] = 7; _precedence[">="] = 7; _precedence["=="] = 7; _precedence["!="] = 7;
+            _precedence["+"] = 10; _precedence["-"] = 10;
+            _precedence["*"] = 20; _precedence["/"] = 20; _precedence["%"] = 20;
         }
         
         // Utilities
 
         private bool IsPunc(char ch)
         {
-            Token tok = input.Peek();
-            return tok != null && tok.Type == TokenType.Punctuation && (ch == null || tok?.Value == ch) && tok != null;
+            Token tok = _input.Peek();
+            return tok != null && tok.Type == TokenType.Punctuation && (tok?.Value == ch) && tok != null;
         }
         private bool IsKeyword(string kw)
         {
-            Token tok = input.Peek();
+            Token tok = _input.Peek();
             return tok != null && tok.Type == TokenType.Keyword && (kw == null || tok?.Value == kw) && tok != null;
         }
-        private Token IsOperator(string op)
+        private Token IsOperator()
         {
-            Token tok = input.Peek();
+            Token tok = _input.Peek();
             if (tok == null)
             {
                 return null;
@@ -56,28 +56,28 @@ namespace Horst.Parser
         {
             if (IsPunc(ch))
             {
-                input.Next();
+                _input.Next();
             }
             else
             {
-                input.Error("Expecting punctuation: \"" + ch + "\"");
+                _input.Error("Expecting punctuation: \"" + ch + "\"");
             }
         }
         private void SkipKeyword(string kw)
         {
             if (IsKeyword(kw))
             {
-                input.Next();
+                _input.Next();
             }
             else
             {
-                input.Error("Expecting keyword: \"" + kw + "\"");
+                _input.Error("Expecting keyword: \"" + kw + "\"");
             }
         }
 
         private void Unexpected()
         {
-            input.Error("Unexpected token: " + input.Peek().Type);
+            _input.Error("Unexpected token: " + _input.Peek().Type);
         }
 
         private FunctionNode ParseFunction()
@@ -92,7 +92,7 @@ namespace Horst.Parser
             
             SkipPunc(start);
 
-            while (!input.EOF())
+            while (!_input.Eof())
             {
                 if (IsPunc(stop))
                     break;
@@ -114,10 +114,10 @@ namespace Horst.Parser
 
         private string ParseVarname()
         {
-            Token name = input.Next();
+            Token name = _input.Next();
             if (name.Type != TokenType.Variable)
             {
-                input.Error("Expecting variable name");
+                _input.Error("Expecting variable name");
             }
 
             return name.Value;
@@ -136,7 +136,7 @@ namespace Horst.Parser
             ConditionNode ret = new ConditionNode(cond, then);
             if (IsKeyword("else"))
             {
-                input.Next();
+                _input.Next();
                 ret.Else = ParseExpression();
             }
 
@@ -145,7 +145,7 @@ namespace Horst.Parser
 
         private BooleanNode ParseBool()
         {
-            return new BooleanNode(input.Next().Value == "true");
+            return new BooleanNode(_input.Next().Value == "true");
         }
 
         private Node ParseAtom()
@@ -154,7 +154,7 @@ namespace Horst.Parser
             {
                 if (IsPunc('('))
                 {
-                    input.Next();
+                    _input.Next();
                     Node exp = ParseExpression();
                     SkipPunc(')');
                     return exp;
@@ -179,11 +179,11 @@ namespace Horst.Parser
 
                 if (IsKeyword("function") || IsKeyword("fn"))
                 {
-                    input.Next();
+                    _input.Next();
                     return ParseFunction();
                 }
 
-                Token token = input.Next();
+                Token token = _input.Next();
                 if (token.Type == TokenType.Variable)
                 {
                     return new IdentifierNode(token.Value);
@@ -219,7 +219,7 @@ namespace Horst.Parser
             Node[] prog = Array.ConvertAll(Delimited('{', '}', ';', ParseExpression), s => (Node)s);
             if (prog.Length == 0)
             {
-                return FALSE;
+                return False;
             }
 
             if (prog.Length == 1)
@@ -241,13 +241,13 @@ namespace Horst.Parser
         
         private Node MaybeBinary(Node left, int myPrec)
         {
-            Token tok = IsOperator(null);
+            Token tok = IsOperator();
             if (tok != null)
             {
-                int hisPrec = PRECEDENCE[tok.Value];
+                int hisPrec = _precedence[tok.Value];
                 if (hisPrec > myPrec)
                 {
-                    input.Next();
+                    _input.Next();
                     Node right = MaybeBinary(ParseAtom(), hisPrec);
                     Node binary = tok.Value == "="
                         ? new AssignmentNode("=", left, right)
@@ -268,11 +268,11 @@ namespace Horst.Parser
         {
             List<Node> prog = new List<Node>();
 
-            while (!input.EOF())
+            while (!_input.Eof())
             {
                 prog.Add(ParseExpression());
                 
-                if (!input.EOF())
+                if (!_input.Eof())
                 {
                     SkipPunc(';');
                 }

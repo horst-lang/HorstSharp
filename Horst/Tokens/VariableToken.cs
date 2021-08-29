@@ -1,6 +1,4 @@
-﻿using Horst.Values;
-
-namespace Horst.Tokens
+﻿namespace Horst.Tokens
 {
     public class VariableToken: Token
     {

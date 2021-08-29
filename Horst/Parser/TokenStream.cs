@@ -6,19 +6,19 @@ namespace Horst.Parser
 {
     public class TokenStream
     {
-        private Token current;
-        private InputStream input;
-        private static readonly string[] keywords = new[] { "if", "then", "else", "function", "fn", "true", "false" };
+        private Token _current;
+        private readonly InputStream _input;
+        private static readonly string[] Keywords = new[] { "if", "then", "else", "function", "fn", "true", "false" };
 
         // Constructor
         public TokenStream(InputStream input)
         {
-            this.input = input;
+            this._input = input;
         }
 
         private bool IsKeyword(string word)
         {
-            return keywords.Contains(word);
+            return Keywords.Contains(word);
         }
 
         private bool IsIdentifier(char ch)
@@ -38,9 +38,9 @@ namespace Horst.Parser
         private string ReadWhile(Func<char, bool> function)
         {
             string str = "";
-            while (!input.EOF() && function(input.Peek()))
+            while (!_input.Eof() && function(_input.Peek()))
             {
-                str += input.Next();
+                str += _input.Next();
             }
 
             return str;
@@ -78,10 +78,10 @@ namespace Horst.Parser
         {
             bool escaped = false;
             string str = "";
-            input.Next();
-            while (!input.EOF())
+            _input.Next();
+            while (!_input.Eof())
             {
-                char ch = input.Next();
+                char ch = _input.Next();
                 if (escaped)
                 {
                     str += ch;
@@ -112,14 +112,14 @@ namespace Horst.Parser
         private void SkipComment()
         {
             ReadWhile((c => c != '\n'));
-            input.Next();
+            _input.Next();
         }
 
         private Token ReadNext()
         {
             ReadWhile(char.IsWhiteSpace);
-            if (input.EOF()) return null;
-            char ch = input.Peek();
+            if (_input.Eof()) return null;
+            char ch = _input.Peek();
             if (ch == '#')
             {
                 SkipComment();
@@ -129,32 +129,32 @@ namespace Horst.Parser
             if (ch == '"') return ReadString();
             if (char.IsDigit(ch)) return ReadNumber();
             if (IsIdentifier(ch)) return ReadIdentifier();
-            if (IsPunctuation(ch)) return new PunctuationToken(input.Next());
+            if (IsPunctuation(ch)) return new PunctuationToken(_input.Next());
             if (IsOperatorChar(ch)) return new OperatorToken(ReadWhile(IsOperatorChar));
-            input.Error($"Can't handle Character: {ch}");
+            _input.Error($"Can't handle Character: {ch}");
             return null;
         }
 
         public Token Peek()
         {
-            return current == null ? (current = ReadNext()) : current;
+            return _current ??= ReadNext();
         }
 
         public Token Next()
         {
-            Token token = current;
-            current = null;
-            return token == null ? ReadNext() : token;
+            Token token = _current;
+            _current = null;
+            return token ?? ReadNext();
         }
 
-        public bool EOF()
+        public bool Eof()
         {
             return Peek() == null;
         }
 
         public void Error(string msg)
         {
-            input.Error(msg);
+            _input.Error(msg);
         }
     }
 }

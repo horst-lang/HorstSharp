@@ -1,6 +1,4 @@
-﻿using Horst.Values;
-
-namespace Horst.Nodes
+﻿namespace Horst.Nodes
 {
     public class NumberNode: Node
     {

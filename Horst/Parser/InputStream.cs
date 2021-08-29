@@ -1,33 +1,33 @@
 ﻿using System;
-using System.IO.Compression;
-using System.Runtime.InteropServices;
 
 namespace Horst.Parser
 {
     public class InputStream
     {
-        public int pos = 0, line = 1, column = 1;
-        private string input;
+        public int Pos = 0, Line = 1, Column = 1;
+        private readonly string File;
+        private readonly string _input;
 
-        public InputStream(string input)
+        public InputStream(string input, string file)
         {
-            this.input = input;
+            this._input = input;
+            File = file;
         }
 
         public char Next()
         {
-            var i = pos++;
-            if (i >= 0 && input.Length > i)
+            var i = Pos++;
+            if (i >= 0 && _input.Length > i)
             {
-                char character = input[i];
+                char character = _input[i];
                 if (character == '\n')
                 {
-                    line++;
-                    column = 1;
+                    Line++;
+                    Column = 1;
                 }
                 else
                 {
-                    column++;
+                    Column++;
                 }
 
                 return character;
@@ -39,17 +39,17 @@ namespace Horst.Parser
 
         public char Peek()
         {
-            return input[pos];
+            return _input[Pos];
         }
 
-        public bool EOF()
+        public bool Eof()
         {
-            return input.Length <= pos;
+            return _input.Length <= Pos;
         }
 
         public void Error(string msg)
         {
-            throw new Exception($"({line}, {column}): {msg}");
+            throw new Exception($"{File} ({Line}, {Column}): {msg}");
         }
     }
 }

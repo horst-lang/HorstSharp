@@ -1,4 +1,4 @@
-﻿namespace HorstRunner
+﻿namespace Horst.Commands
 {
     public class CommandBase
     {
@@ -6,7 +6,7 @@
         public string CommandDescription { get; }
         public string CommandFormat { get; }
 
-        public CommandBase(string commandId, string commandDescription, string commandFormat)
+        protected CommandBase(string commandId, string commandDescription, string commandFormat)
         {
             this.CommandId = commandId;
             this.CommandDescription = commandDescription;

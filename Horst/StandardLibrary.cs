@@ -2,19 +2,19 @@
 using System.IO;
 using System.Diagnostics;
 using System.Net;
-using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 using Horst.Parser;
 
 namespace Horst
 {
     public class StandardLibrary
     {
-        public Environment Environment { get; set; }
+        public Environment Environment { get; }
+        private readonly string _file;
 
-        public StandardLibrary()
+        public StandardLibrary(string file)
         {
+            this._file = file;
             Environment = new Environment(null);
             
             
@@ -25,6 +25,7 @@ namespace Horst
             Environment.Define("PI", Math.PI);
             Environment.Define("E", Math.E);
             Environment.Define("TAU", Math.Tau);
+            Environment.Define("PATH", file);
             
             //#######################################
             //FUNCTIONS
@@ -33,13 +34,115 @@ namespace Horst
 
             #region Console
 
-            Func<dynamic, dynamic> print = text =>
+            dynamic Print(dynamic args)
             {
-                Console.WriteLine(text[0]);
+                if (args.Length > 1)
+                {
+                    if (args[1] == "black")
+                    {
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        Console.WriteLine(args[0]);
+                        Console.ResetColor();
+                    }
+                    else if (args[1] == "darkblue")
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkBlue;
+                        Console.WriteLine(args[0]);
+                        Console.ResetColor();
+                    }
+                    else if (args[1] == "darkgreen")
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkGreen;
+                        Console.WriteLine(args[0]);
+                        Console.ResetColor();
+                    }
+                    else if (args[1] == "darkcyan")
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkCyan;
+                        Console.WriteLine(args[0]);
+                        Console.ResetColor();
+                    }
+                    else if (args[1] == "darkred")
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                        Console.WriteLine(args[0]);
+                        Console.ResetColor();
+                    }
+                    else if (args[1] == "darkmagenta")
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                        Console.WriteLine(args[0]);
+                        Console.ResetColor();
+                    }
+                    else if (args[1] == "darkyellow")
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        Console.WriteLine(args[0]);
+                        Console.ResetColor();
+                    }
+                    else if (args[1] == "gray")
+                    {
+                        Console.ForegroundColor = ConsoleColor.Gray;
+                        Console.WriteLine(args[0]);
+                        Console.ResetColor();
+                    }
+                    else if (args[1] == "darkgray")
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
+                        Console.WriteLine(args[0]);
+                        Console.ResetColor();
+                    }
+                    else if (args[1] == "blue")
+                    {
+                        Console.ForegroundColor = ConsoleColor.Blue;
+                        Console.WriteLine(args[0]);
+                        Console.ResetColor();
+                    }
+                    else if (args[1] == "green")
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine(args[0]);
+                        Console.ResetColor();
+                    }
+                    else if (args[1] == "cyan")
+                    {
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.WriteLine(args[0]);
+                        Console.ResetColor();
+                    }
+                    else if (args[1] == "red")
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine(args[0]);
+                        Console.ResetColor();
+                    }
+                    else if (args[1] == "magenta")
+                    {
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        Console.WriteLine(args[0]);
+                        Console.ResetColor();
+                    }
+                    else if (args[1] == "yellow")
+                    {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine(args[0]);
+                        Console.ResetColor();
+                    }
+                    else if (args[1] == "white")
+                    {
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.WriteLine(args[0]);
+                        Console.ResetColor();
+                    }
+                }
+                else
+                {
+                    Console.WriteLine(args[0]);   
+                }
                 return false;
-            };
-            
-            Func<dynamic[], dynamic> read = (s) =>
+            }
+
+            dynamic Read(dynamic[] s)
             {
                 if (s.Length > 0)
                 {
@@ -47,100 +150,100 @@ namespace Horst
                 }
 
                 return Console.ReadLine();
-            };
-            
-            Func<dynamic, dynamic> error = text =>
+            }
+
+            dynamic Error(dynamic text)
             {
-                throw new Exception((string)text[0]);
-            };
-            
-            Func<dynamic, dynamic> clear = text =>
+                throw new Exception((string) text[0]);
+            }
+
+            dynamic Clear(dynamic text)
             {
                 Console.Clear();
                 return false;
-            };
-            
-            Environment.Define("print", print);
-            Environment.Define("read", read);
-            Environment.Define("error", error);
-            Environment.Define("clear", clear);
+            }
+
+            Environment.Define("print", (Func<dynamic, dynamic>) Print);
+            Environment.Define("read", (Func<dynamic[], dynamic>) Read);
+            Environment.Define("error", (Func<dynamic, dynamic>) Error);
+            Environment.Define("clear", (Func<dynamic, dynamic>) Clear);
             
             #endregion
 
             #region FileSystem
 
-            Func<dynamic, dynamic> readFile = path =>
+            dynamic ReadFile(dynamic path)
             {
-                return File.ReadAllText(path[0]);
-            };
-            
-            Func<dynamic, dynamic> writeFile = args =>
+                return File.ReadAllText(Path.Combine(file, path[0]));
+            }
+
+            dynamic WriteFile(dynamic args)
             {
-                File.WriteAllText(args[0], args[1]);
+                File.WriteAllText(Path.Combine(file, args[0]), args[1]);
                 return false;
-            };
-            
-            Func<dynamic, dynamic> deleteFile = path =>
+            }
+
+            dynamic DeleteFile(dynamic path)
             {
-                File.Delete(path[0]);
+                File.Delete(Path.Combine(file, path[0]));
                 return false;
-            };
-            
-            Func<dynamic, dynamic> isFile = path =>
+            }
+
+            dynamic IsFile(dynamic path)
             {
-                return File.Exists(path[0]);
-            };
-            
-            Func<dynamic, dynamic> isDir = path =>
+                return File.Exists(Path.Combine(file, path[0]));
+            }
+
+            dynamic IsDir(dynamic path)
             {
-                return Directory.Exists(path[0]);
-            };
-            
-            Func<dynamic, dynamic> createDir = path =>
+                return Directory.Exists(Path.Combine(file, path[0]));
+            }
+
+            dynamic CreateDir(dynamic path)
             {
-                Directory.CreateDirectory(path[0]);
+                Directory.CreateDirectory(Path.Combine(file, path[0]));
                 return false;
-            };
-            
-            Environment.Define("readFile", readFile);
-            Environment.Define("writeFile", writeFile);
-            Environment.Define("deleteFile", deleteFile);
-            Environment.Define("isFile", isFile);
-            Environment.Define("isDir", isDir);
-            Environment.Define("createDir", createDir);
+            }
+
+            Environment.Define("readFile", (Func<dynamic, dynamic>) ReadFile);
+            Environment.Define("writeFile", (Func<dynamic, dynamic>) WriteFile);
+            Environment.Define("deleteFile", (Func<dynamic, dynamic>) DeleteFile);
+            Environment.Define("isFile", (Func<dynamic, dynamic>) IsFile);
+            Environment.Define("isDir", (Func<dynamic, dynamic>) IsDir);
+            Environment.Define("createDir", (Func<dynamic, dynamic>) CreateDir);
 
             #endregion
 
             #region Network
-            
-            Func<dynamic, dynamic> httpGet = args =>
+
+            dynamic HttpGet(dynamic args)
             {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create (args[0]);
+                HttpWebRequest request = (HttpWebRequest) WebRequest.Create(args[0]);
 
                 // Set some reasonable limits on resources used by this request
                 request.MaximumAutomaticRedirections = 4;
                 request.MaximumResponseHeadersLength = 4;
                 // Set credentials to use for this request.
                 request.Credentials = CredentialCache.DefaultCredentials;
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse ();
+                HttpWebResponse response = (HttpWebResponse) request.GetResponse();
 
                 //Console.WriteLine ("Content length is {0}", response.ContentLength);
                 //Console.WriteLine ("Content type is {0}", response.ContentType);
 
                 // Get the stream associated with the response.
-                Stream receiveStream = response.GetResponseStream ();
+                Stream receiveStream = response.GetResponseStream();
 
                 // Pipes the stream to a higher level stream reader with the required encoding format.
-                StreamReader readStream = new StreamReader (receiveStream, Encoding.UTF8);
+                StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
 
                 //Console.WriteLine ("Response stream received.");
-                string res =  (readStream.ReadToEnd ());
-                response.Close ();
-                readStream.Close ();
+                string res = (readStream.ReadToEnd());
+                response.Close();
+                readStream.Close();
                 return res;
-            };
+            }
 
-            Func<dynamic, dynamic> httpPost = args =>
+            dynamic HttpPost(dynamic args)
             {
                 // Create a request using a URL that can receive a post.
                 WebRequest request = WebRequest.Create(args[0]);
@@ -168,14 +271,14 @@ namespace Horst
                 // Display the status.
                 //Console.WriteLine(((HttpWebResponse) response).StatusDescription);
 
-                string ret = "";
+                string ret;
 
                 // Get the stream containing content returned by the server.
                 // The using block ensures the stream is automatically closed.
                 using (dataStream = response.GetResponseStream())
                 {
                     // Open the stream using a StreamReader for easy access.
-                    StreamReader reader = new StreamReader(dataStream);
+                    StreamReader reader = new StreamReader(dataStream ?? throw new InvalidOperationException());
                     // Read the content.
                     string responseFromServer = reader.ReadToEnd();
                     ret = responseFromServer;
@@ -184,31 +287,78 @@ namespace Horst
                 // Close the response.
                 response.Close();
                 return ret;
-            };
+            }
+
+            Environment.Define("httpGet", (Func<dynamic, dynamic>) HttpGet);
+            Environment.Define("httpPost", (Func<dynamic, dynamic>) HttpPost);
+
+            #endregion
+
+            #region Math
+
+            dynamic Cos(dynamic args)
+            {
+                return Math.Cos(args[0]);
+            }
+            dynamic Sin(dynamic args)
+            {
+                return Math.Sin(args[0]);
+            }
+            dynamic Sqrt(dynamic args)
+            {
+                return Math.Sqrt(args[0]);
+            }
+            dynamic Exp(dynamic args)
+            {
+                return Math.Exp(args[0]);
+            }
+            dynamic Log(dynamic args)
+            {
+                return Math.Log(args[0], args[1]);
+            }
+            dynamic Pow(dynamic args)
+            {
+                return Math.Pow(args[0], args[1]);
+            }
+            dynamic Max(dynamic args)
+            {
+                return Math.Max(args[0], args[1]);
+            }
+            dynamic Min(dynamic args)
+            {
+                return Math.Min(args[0], args[1]);
+            }
+            dynamic Round(dynamic args)
+            {
+                return Math.Round(args[0]);
+            }
             
-            Environment.Define("httpGet", httpGet);
-            Environment.Define("httpPost", httpPost);
+            
+            
+            Environment.Define("cos",(Func<dynamic, dynamic>) Cos);
+            Environment.Define("sin",(Func<dynamic, dynamic>) Sin);
+            Environment.Define("exp",(Func<dynamic, dynamic>) Exp);
+            Environment.Define("sqrt",(Func<dynamic, dynamic>) Sqrt);
+            Environment.Define("log",(Func<dynamic, dynamic>) Log);
+            Environment.Define("pow",(Func<dynamic, dynamic>) Pow);
+            Environment.Define("max",(Func<dynamic, dynamic>) Max);
+            Environment.Define("min",(Func<dynamic, dynamic>) Min);
+            Environment.Define("round",(Func<dynamic, dynamic>) Round);
 
             #endregion
             
             //More
-            
-            Func<dynamic, dynamic> eval = code =>
-            {
-                return Interpreter.Evaluate(new Parser.Parser(new TokenStream(new InputStream(code[0]))).Parse(),
-                    Environment);
-            };
 
-            Func<dynamic[], dynamic> exec = args =>
-            {
+            dynamic Eval(dynamic code) => Interpreter.Evaluate(new Parser.Parser(new TokenStream(new InputStream(code[0], _file))).Parse(), Environment);
 
-                Process cmd = new Process();
-                cmd.StartInfo.FileName = "cmd.exe";
-                cmd.StartInfo.RedirectStandardInput = true;
+            dynamic Exec(dynamic[] args)
+            {
+                Process cmd = new Process {StartInfo = {FileName = "cmd.exe", RedirectStandardInput = true}};
                 if (args.Length > 1)
                 {
                     cmd.StartInfo.RedirectStandardOutput = args[1];
                 }
+
                 cmd.StartInfo.RedirectStandardOutput = false;
                 cmd.StartInfo.CreateNoWindow = true;
                 cmd.StartInfo.UseShellExecute = false;
@@ -219,10 +369,10 @@ namespace Horst
                 cmd.StandardInput.Close();
                 cmd.WaitForExit();
                 return false;
-            };
-            
-            Environment.Define("eval", eval);
-            Environment.Define("exec", exec);
+            }
+
+            Environment.Define("eval", (Func<dynamic, dynamic>) Eval);
+            Environment.Define("exec", (Func<dynamic[], dynamic>) Exec);
         }
     }
 }

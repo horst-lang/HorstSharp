@@ -5,15 +5,15 @@ namespace Horst
 {
     public class Environment
     {
-        public Dictionary<string, dynamic> vars;
-        public Dictionary<string, dynamic> privateVars;
-        public Environment parent;
+        private readonly Dictionary<string, dynamic> _vars;
+        private readonly Dictionary<string, dynamic> _privateVars;
+        private readonly Environment _parent;
 
         public Environment(Environment parent)
         {
-            this.parent = parent;
-            vars = parent == null ? new Dictionary<string, dynamic>() : parent.vars;
-            privateVars = new Dictionary<string, dynamic>();
+            this._parent = parent;
+            _vars = parent == null ? new Dictionary<string, dynamic>() : parent._vars;
+            _privateVars = new Dictionary<string, dynamic>();
         }
 
         public Environment Extend()
@@ -21,17 +21,17 @@ namespace Horst
             return new Environment(this);
         }
 
-        public Environment Lookup(string name)
+        private Environment Lookup(string name)
         {
             Environment scope = this;
             while (scope != null)
             {
-                if (scope.privateVars.ContainsValue(name))
+                if (scope._privateVars.ContainsValue(name))
                 {
                     return scope;
                 }
 
-                scope = scope.parent;
+                scope = scope._parent;
             }
 
             return null;
@@ -39,9 +39,9 @@ namespace Horst
 
         public dynamic Get(string name)
         {
-            if (vars.ContainsKey(name))
+            if (_vars.ContainsKey(name))
             {
-                return vars[name];
+                return _vars[name];
             }
 
             throw new Exception($"Undefined variable '{name}'");
@@ -58,15 +58,15 @@ namespace Horst
                 //throw new Exception("Undefined variable " + name);
             }
 
-            Environment env = scope == null ? this : scope;
-            env.privateVars[name] = value;
-            return env.vars[name] = value;
+            Environment env = scope ?? this;
+            env._privateVars[name] = value;
+            return env._vars[name] = value;
         }
 
         public void Define(string name, dynamic value)
         {
-            this.privateVars[name] = value;
-            this.vars[name] = value;
+            this._privateVars[name] = value;
+            this._vars[name] = value;
         }
     }
 }
